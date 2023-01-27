@@ -28,8 +28,7 @@ async def start():
     scheduler = AsyncIOScheduler()
     scheduler.add_job(
         apsched.send_message_takeoff, trigger='cron',
-        args=(bot,), hour=datetime.datetime.now().hour,
-        minute=datetime.datetime.now().minute + 1,
+        args=(bot,), hour=10, minute=0, second=0,
         start_date=datetime.datetime.now()
     )
     dp.startup.register(start_bot)

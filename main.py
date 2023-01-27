@@ -1,36 +1,41 @@
-from aiogram import Bot, Dispatcher, executor, types
-import datetime
-
-TOKEN = '5899343319:AAHKzqJLAfx2GnIxdoZ0yIbd4A0FJhNjVX8'
-
-text_path = 'text/morning_text.txt'
-
-
-def read_text(path):
-    text = []
-    with open(path, 'r', encoding="utf-8") as f:
-        for line in f:
-            line = line.replace("\n", '')
-            text.append(line)
-    f.close()
-    return text
-
-def return_count_takeoff():
-    today_data = datetime.datetime.today()
-    takeoff_date = datetime.datetime(2023, 2, 26)
-    return (takeoff_date - today_data).days
-
-bot = Bot(TOKEN)
-dp = Dispatcher(bot)
+from aiogram import Bot, Dispatcher
+import asyncio
+import logging
+from core.handlers.basic import get_start
+from core.settings import settings
 
 
-@dp.message_handler(commands=['start'])
-async def echo(message: types.Message):
-    await message.answer(text='ппп')
+async def start_bot(bot: Bot):
+    await bot.send_message(settings.bots.admin_id, text='Бот запущен')
+
+
+async def stop_bot(bot: Bot):
+    await bot.send_message(settings.bots.admin_id, text='Бот остановлен')
+
+
+async def start():
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - [%(levelname)s] - %(name)s - "
+               "(%(filename)s).%(funcName)s(%(lineno)d) - %(message)s"
+    )
+    bot = Bot(token=settings.bots.bot_token)
+
+    dp = Dispatcher()
+    dp.startup.register(start_bot)
+    dp.shutdown.register(stop_bot)
+
+    dp.message.register(get_start)
+
+    try:
+        await dp.start_polling(bot)
+    finally:
+        await bot.session.close()
+
+
+def main():
+    asyncio.run(start())
 
 
 if __name__ == '__main__':
-    # executor.start_polling(dp)
-    text = read_text(text_path)
-    count_takeoff = return_count_takeoff()
-    print(f'{text[5]}, до отъезда осталось {count_takeoff}')
+    main()

@@ -1,9 +1,10 @@
 from aiogram import Bot, Dispatcher, executor, types
+import datetime
 
 TOKEN = '5899343319:AAHKzqJLAfx2GnIxdoZ0yIbd4A0FJhNjVX8'
 
-morning_text_path = 'text/morning_text.txt'
-night_text_path = 'text/night_text.txt'
+text_path = 'text/morning_text.txt'
+
 
 def read_text(path):
     text = []
@@ -14,13 +15,22 @@ def read_text(path):
     f.close()
     return text
 
+def return_count_takeoff():
+    today_data = datetime.datetime.today()
+    takeoff_date = datetime.datetime(2023, 2, 26)
+    return (takeoff_date - today_data).days
+
 bot = Bot(TOKEN)
 dp = Dispatcher(bot)
+
 
 @dp.message_handler(commands=['start'])
 async def echo(message: types.Message):
     await message.answer(text='ппп')
 
+
 if __name__ == '__main__':
     # executor.start_polling(dp)
-    print(read_text(night_text_path))
+    text = read_text(text_path)
+    count_takeoff = return_count_takeoff()
+    print(f'{text[5]}, до отъезда осталось {count_takeoff}')
